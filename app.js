@@ -1,7 +1,19 @@
 // Supabase Konfiguration
 // Konfiguration wird aus config.js geladen (lokal) oder im Build-Prozess injiziert
-const SUPABASE_URL = (typeof CONFIG !== 'undefined' ? CONFIG.SUPABASE_URL : window.env?.SUPABASE_URL) || '';
-const SUPABASE_ANON_KEY = (typeof CONFIG !== 'undefined' ? CONFIG.SUPABASE_ANON_KEY : window.env?.SUPABASE_ANON_KEY) || '';
+let SUPABASE_URL = '';
+let SUPABASE_ANON_KEY = '';
+
+if (typeof CONFIG !== 'undefined') {
+    SUPABASE_URL = CONFIG.SUPABASE_URL;
+    SUPABASE_ANON_KEY = CONFIG.SUPABASE_ANON_KEY;
+} else if (window.env) {
+    SUPABASE_URL = window.env.SUPABASE_URL;
+    SUPABASE_ANON_KEY = window.env.SUPABASE_ANON_KEY;
+}
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    console.error("FEHLER: Supabase URL oder Key fehlen! Stelle sicher, dass config.js geladen wird.");
+}
 
 // Supabase Client initialisieren
 // Wir prüfen, ob supabase global verfügbar ist (durch das CDN script im HTML)
