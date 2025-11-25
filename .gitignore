@@ -1,0 +1,12 @@
+# Environment configuration
+config.js
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.idea/
+.vscode/
+*.swp
+

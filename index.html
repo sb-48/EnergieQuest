@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnergieQuest - Anmelden</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container auth-container">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="width: 80px; height: 80px; background: var(--primary-color); border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; color: white; margin-bottom: 20px;">⚡</div>
+            <h1>EnergieQuest</h1>
+            <p style="color: var(--text-secondary);">Willkommen zurück!</p>
+        </div>
+
+        <div class="card">
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="email">E-Mail</label>
+                    <input type="email" id="email" class="input-field" placeholder="deine@email.de" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Passwort</label>
+                    <input type="password" id="password" class="input-field" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn-primary">Anmelden</button>
+            </form>
+            
+            <div class="auth-links">
+                <a href="passwort-vergessen.html" style="display: block; margin-bottom: 15px; color: var(--text-secondary); font-size: 0.85rem;">Passwort vergessen?</a>
+                <p>Noch kein Konto? <a href="registrieren.html">Jetzt registrieren</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = e.target.querySelector('button');
+            
+            btn.disabled = true;
+            btn.textContent = 'Lade...';
+            
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+            
+            if (error) {
+                alert('Login fehlgeschlagen: ' + error.message);
+                btn.disabled = false;
+                btn.textContent = 'Anmelden';
+            } else {
+                window.location.href = 'dashboard.html';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnergieQuest - Registrieren</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container auth-container">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="width: 60px; height: 60px; background: var(--primary-color); border-radius: 15px; display: inline-flex; align-items: center; justify-content: center; font-size: 30px; color: white; margin-bottom: 15px;">⚡</div>
+            <h1>Konto erstellen</h1>
+        </div>
+
+        <div class="card">
+            <form id="registerForm">
+                <div class="input-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" class="input-field" placeholder="Max Mustermann" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="email">E-Mail</label>
+                    <input type="email" id="email" class="input-field" placeholder="deine@email.de" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Passwort</label>
+                    <input type="password" id="password" class="input-field" placeholder="Mind. 6 Zeichen" required minlength="6">
+                </div>
+                
+                <div class="input-group">
+                    <label for="passwordConfirm">Passwort bestätigen</label>
+                    <input type="password" id="passwordConfirm" class="input-field" placeholder="Wiederholen" required>
+                </div>
+
+                <!-- Verstecktes Feld für Referral Code -->
+                <div class="input-group" id="refCodeGroup" style="display: none;">
+                    <label style="color: var(--success-color);">🎁 Empfehlungscode aktiviert</label>
+                    <input type="text" id="refCode" class="input-field" readonly style="background-color: #DCFCE7; color: #166534;">
+                </div>
+                
+                <button type="submit" class="btn-primary">Registrieren</button>
+            </form>
+            
+            <div class="auth-links">
+                <p>Bereits ein Konto? <a href="index.html">Anmelden</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // URL Parameter auslesen (?ref=XYZ)
+        const urlParams = new URLSearchParams(window.location.search);
+        const refCode = urlParams.get('ref');
+        
+        if (refCode) {
+            const refInput = document.getElementById('refCode');
+            const refGroup = document.getElementById('refCodeGroup');
+            refInput.value = refCode;
+            refGroup.style.display = 'block';
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const passwordConfirm = document.getElementById('passwordConfirm').value;
+            const referralCode = document.getElementById('refCode').value; // Code auslesen
+            
+            if (password !== passwordConfirm) {
+                alert('Passwörter stimmen nicht überein!');
+                return;
+            }
+
+            const btn = e.target.querySelector('button');
+            btn.disabled = true;
+            btn.textContent = 'Registriere...';
+            
+            // Neue Funktion aufrufen, die auch den Referral-Code übergibt
+            const result = await signUpWithReferral(email, password, name, referralCode);
+            
+            if (!result.success) {
+                alert('Registrierung fehlgeschlagen: ' + result.error);
+                btn.disabled = false;
+                btn.textContent = 'Registrieren';
+            } else {
+                alert('Registrierung erfolgreich! Bitte bestätige deine E-Mail.');
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnergieQuest - Upload</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="top-bar">
+            <a href="dashboard.html" class="logo">EnergieQuest</a>
+            <button class="menu-btn"><i class="fa-solid fa-bars"></i></button>
+        </div>
+
+        <div class="welcome-section">
+            <h1>Dateien hochladen</h1>
+            <p>Lade deine Energiedaten und Dokumente hoch</p>
+        </div>
+
+        <div class="card">
+            <div class="upload-dropzone" id="uploadArea">
+                <i class="fa-solid fa-cloud-arrow-up" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 10px;"></i>
+                <h3>Dateien hier ablegen</h3>
+                <p style="color: var(--text-secondary); margin-top: 5px;">oder klicken zum Auswählen</p>
+                <input type="file" id="fileInput" multiple style="display: none;">
+            </div>
+            <div id="messageArea" style="margin-top: 15px;"></div>
+        </div>
+
+        <div class="card">
+            <h3>Hochzuladende Dateien</h3>
+            <div id="fileList" style="margin-top: 15px;">
+                <p style="color: var(--text-secondary); text-align: center; font-size: 0.9rem;">Keine Dateien ausgewählt</p>
+            </div>
+            <button id="uploadBtn" class="btn-primary" style="display: none;">Jetzt hochladen</button>
+        </div>
+
+        <div class="card">
+            <h3>Deine Uploads</h3>
+            <div id="uploadedFilesList" style="margin-top: 15px;">
+                <p style="text-align: center;">Lade Liste...</p>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fa-solid fa-house nav-icon"></i>
+            <span>Home</span>
+        </a>
+        <a href="empfehlungen.html" class="nav-item">
+            <i class="fa-solid fa-user-plus nav-icon"></i>
+            <span>Empfehlungen</span>
+        </a>
+        <a href="gutscheine.html" class="nav-item">
+            <i class="fa-solid fa-ticket nav-icon"></i>
+            <span>Gutscheine</span>
+        </a>
+        <a href="upload.html" class="nav-item active">
+            <i class="fa-solid fa-cloud-arrow-up nav-icon"></i>
+            <span>Uploads</span>
+        </a>
+        <a href="profil.html" class="nav-item">
+            <i class="fa-regular fa-user nav-icon"></i>
+            <span>Profil</span>
+        </a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        let selectedFiles = [];
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const messageArea = document.getElementById('messageArea');
+        const uploadedFilesList = document.getElementById('uploadedFilesList');
+
+        async function init() {
+            const session = await checkAuth();
+            if (!session) {
+                 // window.location.href = 'index.html';
+                 console.log("Demo Mode: Upload might fail without auth");
+            }
+            loadUploadedFiles();
+        }
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--primary-color)';
+            uploadArea.style.backgroundColor = '#F0FDF4';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#E5E7EB';
+            uploadArea.style.backgroundColor = '#F9FAFB';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#E5E7EB';
+            uploadArea.style.backgroundColor = '#F9FAFB';
+            handleFiles(e.dataTransfer.files);
+        });
+
+        function handleFiles(files) {
+            selectedFiles = Array.from(files);
+            displayFiles();
+            uploadBtn.style.display = selectedFiles.length > 0 ? 'block' : 'none';
+        }
+
+        function displayFiles() {
+            if (selectedFiles.length === 0) {
+                fileList.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Keine Dateien ausgewählt</p>';
+                return;
+            }
+            
+            fileList.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                fileList.innerHTML += `
+                    <div class="file-list-item">
+                        <div>
+                            <div style="font-weight: 500;">${file.name}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);">${formatFileSize(file.size)}</div>
+                        </div>
+                        <i class="fa-solid fa-xmark" style="cursor: pointer; color: var(--text-secondary);" onclick="removeFile(${index})"></i>
+                    </div>
+                `;
+            });
+        }
+
+        window.removeFile = function(index) {
+            selectedFiles.splice(index, 1);
+            displayFiles();
+            uploadBtn.style.display = selectedFiles.length > 0 ? 'block' : 'none';
+        };
+
+        uploadBtn.addEventListener('click', async () => {
+            if (selectedFiles.length === 0) return;
+            
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Wird hochgeladen...';
+            messageArea.innerHTML = '';
+            
+            let successCount = 0;
+            let lastError = null;
+            
+            for (const file of selectedFiles) {
+                const result = await uploadFile(file);
+                if (result.success) {
+                    successCount++;
+                } else {
+                    lastError = result.error;
+                }
+            }
+            
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = 'Jetzt hochladen';
+            
+            if (successCount > 0) {
+                messageArea.innerHTML = `<div style="color: var(--success-color); padding: 10px; background: #DCFCE7; border-radius: 8px;">✅ ${successCount} Datei(en) hochgeladen!</div>`;
+                selectedFiles = [];
+                displayFiles();
+                uploadBtn.style.display = 'none';
+                loadUploadedFiles();
+            }
+            
+            // Fehler anzeigen, falls vorhanden (wir nehmen den letzten Fehler als Beispiel)
+            if (lastError) {
+                 messageArea.innerHTML += `<div style="color: var(--danger-color); padding: 10px; background: #FEE2E2; border-radius: 8px; margin-top: 10px;">❌ Fehler: ${lastError}</div>`;
+            } else if (successCount === 0) {
+                 messageArea.innerHTML = `<div style="color: var(--danger-color); padding: 10px; background: #FEE2E2; border-radius: 8px;">❌ Upload fehlgeschlagen.</div>`;
+            }
+        });
+
+        async function loadUploadedFiles() {
+            const result = await getFiles();
+            if (result.success && result.files.length > 0) {
+                uploadedFilesList.innerHTML = '';
+                result.files.forEach(file => {
+                    uploadedFilesList.innerHTML += `
+                        <div class="file-list-item">
+                            <div>
+                                <div style="font-weight: 500;">${file.name}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-secondary);">${new Date(file.created_at).toLocaleDateString()}</div>
+                            </div>
+                            <button style="border: none; background: none; color: var(--danger-color); cursor: pointer;" onclick="deleteFileHandler('${file.name}')">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+            } else {
+                uploadedFilesList.innerHTML = '<p style="text-align: center; color: var(--text-secondary); font-size: 0.9rem;">Noch keine Dateien hochgeladen.</p>';
+            }
+        }
+        
+        window.deleteFileHandler = async function(fileName) {
+            if(!confirm('Datei wirklich löschen?')) return;
+            await deleteFile(fileName);
+            loadUploadedFiles();
+        };
+
+        init();
+    </script>
+</body>
+</html>

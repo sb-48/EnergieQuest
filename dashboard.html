@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnergieQuest Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome für Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <a href="#" class="logo">EnergieQuest</a>
+            <button class="menu-btn"><i class="fa-solid fa-bars"></i></button>
+        </div>
+
+        <!-- Welcome -->
+        <div class="welcome-section">
+            <h1 id="welcomeMessage">Hallo, Max! 👋</h1>
+            <p>Willkommen bei EnergieQuest</p>
+        </div>
+
+        <!-- Level Card -->
+        <div class="card">
+            <div class="level-info">
+                <div>
+                    <div class="level-label">Aktuelles Level</div>
+                    <div class="level-number" id="currentLevel">0</div>
+                </div>
+                <div class="trophy-icon">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-labels">
+                    <span>Fortschritt zu Level <span id="nextLevelNum">1</span></span>
+                    <span id="progressText">0/1 Empfehlungen</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                </div>
+                <div class="progress-text" id="remainingText">Noch 1 erfolgreiche Empfehlung bis Level 1</div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="successCount">0</div>
+                <div class="stat-label">Erfolgreiche Empfehlungen</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value orange" id="pendingCount">0</div>
+                <div class="stat-label">Ausstehend</div>
+            </div>
+        </div>
+
+        <!-- Voucher Card -->
+        <div class="card" style="text-align: center;">
+            <div class="stat-value" id="totalVoucherValue">0€</div>
+            <div class="stat-label">Gesamte Gutscheine verdient</div>
+        </div>
+
+        <!-- Referral Code -->
+        <div class="card">
+            <h3>Dein Empfehlungscode</h3>
+            <div class="referral-code-box" id="myRefCode">Lade...</div>
+            <button class="btn-share" id="shareBtn">
+                <i class="fa-solid fa-share-nodes"></i> Link teilen
+            </button>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <h3>Schnellaktionen</h3>
+            <div class="quick-actions-grid" style="margin-top: 15px;">
+                <button class="action-button" onclick="window.location.href='empfehlungen.html'">
+                    <i class="fa-solid fa-user-plus action-icon green"></i>
+                    <span class="action-label">Empfehlungen</span>
+                </button>
+                <button class="action-button orange" onclick="window.location.href='gutscheine.html'">
+                    <i class="fa-solid fa-gift action-icon orange"></i>
+                    <span class="action-label">Gutscheine</span>
+                </button>
+                <button class="action-button blue" onclick="window.location.href='upload.html'">
+                    <i class="fa-solid fa-cloud-arrow-up action-icon blue"></i>
+                    <span class="action-label">Upload</span>
+                </button>
+                <button class="action-button purple" onclick="window.location.href='profil.html'">
+                    <i class="fa-solid fa-bell action-icon purple"></i>
+                    <span class="action-label">Infos</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item active">
+            <i class="fa-solid fa-house nav-icon"></i>
+            <span>Home</span>
+        </a>
+        <a href="empfehlungen.html" class="nav-item">
+            <i class="fa-solid fa-user-plus nav-icon"></i>
+            <span>Empfehlungen</span>
+        </a>
+        <a href="gutscheine.html" class="nav-item">
+            <i class="fa-solid fa-ticket nav-icon"></i>
+            <span>Gutscheine</span>
+        </a>
+        <a href="upload.html" class="nav-item">
+            <i class="fa-solid fa-cloud-arrow-up nav-icon"></i>
+            <span>Uploads</span>
+        </a>
+        <a href="profil.html" class="nav-item">
+            <i class="fa-regular fa-user nav-icon"></i>
+            <span>Profil</span>
+        </a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        const levels = [
+            { level: 0, required: 0, reward: 'Kein Gutschein', value: 0 },
+            { level: 1, required: 1, reward: '15€', value: 15 },
+            { level: 2, required: 3, reward: '25€', value: 25 },
+            { level: 3, required: 6, reward: '35€', value: 35 },
+            { level: 4, required: 10, reward: '45€', value: 45 },
+            { level: 5, required: 15, reward: '55€', value: 55 },
+            { level: 6, required: 21, reward: '65€', value: 65 },
+            { level: 7, required: 28, reward: '75€', value: 75 }
+        ];
+
+        async function initDashboard() {
+            const session = await checkAuth();
+            if (!session) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // 1. Begrüßung
+            const name = session.user.user_metadata?.name || "Benutzer";
+            document.getElementById('welcomeMessage').innerHTML = `Hallo, ${name}! 👋`;
+
+            // 2. Ref-Code & Stats laden
+            const code = await getMyReferralCode();
+            document.getElementById('myRefCode').textContent = code || 'Kein Code';
+
+            // Stats zählen
+            const { count: pendingCount } = await supabase
+                .from('referrals')
+                .select('*', { count: 'exact', head: true })
+                .eq('referrer_id', session.user.id)
+                .eq('status', 0); // Offen
+
+            // Nur Status 2 (Genehmigt) zählt für Level!
+            const { count: successCount } = await supabase
+                .from('referrals')
+                .select('*', { count: 'exact', head: true })
+                .eq('referrer_id', session.user.id)
+                .eq('status', 2); 
+
+            document.getElementById('pendingCount').textContent = pendingCount || 0;
+            document.getElementById('successCount').textContent = successCount || 0;
+
+            // 3. Level berechnen
+            const currentRefCount = successCount || 0;
+            let currentLevel = 0;
+            let earnedTotal = 0;
+            let nextLevel = levels[1];
+            
+            for (let i = 0; i < levels.length; i++) {
+                if (currentRefCount >= levels[i].required) {
+                    currentLevel = i;
+                    earnedTotal = levels[i].value;
+                } else {
+                    nextLevel = levels[i];
+                    break;
+                }
+            }
+
+            // UI Update
+            document.getElementById('currentLevel').textContent = currentLevel;
+            document.getElementById('totalVoucherValue').textContent = earnedTotal + '€';
+
+            if (nextLevel && currentLevel < 7) {
+                document.getElementById('nextLevelNum').textContent = currentLevel + 1;
+                document.getElementById('progressText').textContent = `${currentRefCount}/${nextLevel.required} Empfehlungen`;
+                
+                const prevReq = levels[currentLevel].required;
+                const nextReq = nextLevel.required;
+                const progress = ((currentRefCount - prevReq) / (nextReq - prevReq)) * 100;
+                
+                document.getElementById('progressBar').style.width = `${Math.max(5, progress)}%`;
+                document.getElementById('remainingText').textContent = `Noch ${nextReq - currentRefCount} genehmigte Empfehlung(en) bis Level ${currentLevel + 1}`;
+            } else {
+                document.getElementById('nextLevelNum').textContent = "MAX";
+                document.getElementById('progressBar').style.width = '100%';
+                document.getElementById('remainingText').textContent = "Maximales Level erreicht!";
+            }
+        }
+
+        document.getElementById('shareBtn').addEventListener('click', shareReferralLink);
+
+        initDashboard();
+    </script>
+</body>
+</html>

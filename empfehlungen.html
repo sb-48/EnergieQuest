@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnergieQuest - Empfehlungen</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Tabellen Styles */
+        .referral-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        .referral-table th {
+            text-align: left;
+            padding: 12px 8px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .referral-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #F3F4F6;
+            color: var(--text-primary);
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-0 { background-color: #FEF3C7; color: #D97706; } /* Prüfung */
+        .status-1 { background-color: #DBEAFE; color: #2563EB; } /* Abgeschlossen */
+        .status-2 { background-color: #DCFCE7; color: #166534; } /* Genehmigt */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-bar">
+            <a href="dashboard.html" class="logo">EnergieQuest</a>
+            <button class="menu-btn"><i class="fa-solid fa-bars"></i></button>
+        </div>
+
+        <div class="welcome-section">
+            <h1>Empfehlungen</h1>
+            <p>Lade Freunde ein und verdiene Belohnungen</p>
+        </div>
+
+        <div class="card">
+            <h3>Dein Status</h3>
+            <div class="stats-grid" style="margin-top: 15px;">
+                <div class="stat-card">
+                    <div class="stat-value" id="successCount">0</div>
+                    <div class="stat-label">Erfolgreich</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value orange" id="pendingCount">0</div>
+                    <div class="stat-label">Offen</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Deine Empfehlungen</h3>
+            <div style="overflow-x: auto;">
+                <table class="referral-table">
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="referralTableBody">
+                        <tr>
+                            <td colspan="2" style="text-align: center; color: var(--text-secondary);">Lade Daten...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Freunde einladen</h3>
+            <p style="color: var(--text-secondary); margin: 10px 0; font-size: 0.9rem;">
+                Teile deinen persönlichen Code mit Freunden. Für jede erfolgreiche Anmeldung erhältst du 20€ Guthaben!
+            </p>
+            <div class="referral-code-box" id="myRefCode">Lade Code...</div>
+            <button class="btn-share" id="shareBtn">
+                <i class="fa-solid fa-share-nodes"></i> Code teilen
+            </button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fa-solid fa-house nav-icon"></i>
+            <span>Home</span>
+        </a>
+        <a href="empfehlungen.html" class="nav-item active">
+            <i class="fa-solid fa-user-plus nav-icon"></i>
+            <span>Empfehlungen</span>
+        </a>
+        <a href="gutscheine.html" class="nav-item">
+            <i class="fa-solid fa-ticket nav-icon"></i>
+            <span>Gutscheine</span>
+        </a>
+        <a href="upload.html" class="nav-item">
+            <i class="fa-solid fa-cloud-arrow-up nav-icon"></i>
+            <span>Uploads</span>
+        </a>
+        <a href="profil.html" class="nav-item">
+            <i class="fa-regular fa-user nav-icon"></i>
+            <span>Profil</span>
+        </a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        async function initReferrals() {
+            const session = await checkAuth();
+            if (!session) return;
+
+            // 1. Code laden
+            const code = await getMyReferralCode();
+            document.getElementById('myRefCode').textContent = code || 'Kein Code';
+
+            // 2. Tabelle laden
+            loadReferralTable(session.user.id);
+
+            // 3. Stats laden (Anzahl der Empfehlungen)
+            const { count: pendingCount } = await supabase
+                .from('referrals')
+                .select('*', { count: 'exact', head: true })
+                .eq('referrer_id', session.user.id)
+                .eq('status', 0); // 0 = Prüfung
+
+            const { count: successCount } = await supabase
+                .from('referrals')
+                .select('*', { count: 'exact', head: true })
+                .eq('referrer_id', session.user.id)
+                .in('status', [1, 2]); // 1 = Abgeschlossen, 2 = Genehmigt
+
+            document.getElementById('pendingCount').textContent = pendingCount || 0;
+            document.getElementById('successCount').textContent = successCount || 0;
+        }
+
+        // Funktion zum Laden der Tabelle
+        async function loadReferralTable(userId) {
+            const tbody = document.getElementById('referralTableBody');
+            
+            const { data, error } = await supabase
+                .from('referrals')
+                .select('*')
+                .eq('referrer_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error("Fehler beim Laden der Referrals:", error);
+                tbody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: red;">Fehler beim Laden</td></tr>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--text-secondary);">Noch keine Empfehlungen</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = ''; // Leeren
+
+            data.forEach(ref => {
+                const date = new Date(ref.created_at).toLocaleDateString('de-DE');
+                let statusHtml = '';
+                let statusText = '';
+
+                // Status Logik: 0=Prüfung, 1=Abgeschlossen, 2=Genehmigt
+                switch(ref.status) {
+                    case 0:
+                        statusHtml = '<span class="status-badge status-0">In Prüfung</span>';
+                        break;
+                    case 1:
+                        statusHtml = '<span class="status-badge status-1">Abgeschlossen</span>';
+                        break;
+                    case 2:
+                        statusHtml = '<span class="status-badge status-2">Genehmigt</span>';
+                        break;
+                    default:
+                        statusHtml = '<span class="status-badge" style="background:#eee; color:#666;">Unbekannt</span>';
+                }
+
+                const row = `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${statusHtml}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        document.getElementById('shareBtn').addEventListener('click', shareReferralLink);
+
+        initReferrals();
+    </script>
+</body>
+</html>

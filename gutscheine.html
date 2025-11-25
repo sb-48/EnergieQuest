@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnergieQuest - Gutscheine & Level</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Spezifische Styles für die Timeline */
+        .level-timeline {
+            position: relative;
+            /* padding-left und margin-left entfernt, da Marker weg sind */
+            margin-top: 20px;
+        }
+        
+        /* Linie entfernt */
+        /* .level-timeline::before { ... } */
+
+        .level-item {
+            position: relative;
+            margin-bottom: 16px;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 16px;
+            /* margin-left entfernt */
+        }
+
+        /* Marker entfernt */
+        /* .level-marker-circle { ... } */
+
+        .level-item.active {
+            border-color: var(--primary-color);
+            background: #F0FDF4;
+        }
+
+        /* Layout innerhalb der Karte */
+        .level-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .level-left {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        /* Ganz linke Level-Nummer Box (Das graue Quadrat mit der Nummer)
+           Falls der User DAS meint mit "ganz linken Icons":
+           Ich entferne es NICHT komplett, es sei denn er besteht darauf.
+           Er sagte "Icons die die Levelübersicht anzeigen".
+           Die Timeline-Marker (Kreise auf der Linie) habe ich schon entfernt.
+           Wenn er die Level-Nummer-Boxen auch weg haben will:
+           .level-number-box { display: none; }
+           Ich lasse sie erstmal da, weil man sonst nicht weiß welches Level es ist.
+        */
+        .level-number-box {
+            width: 40px;
+            height: 40px;
+            background: #F3F4F6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+        
+        .level-item.active .level-number-box {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .level-info-text h4 {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        .level-info-text p {
+            margin: 2px 0 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .level-right {
+            text-align: right;
+        }
+
+        .level-reward {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .level-reward.highlight {
+            color: var(--primary-color);
+        }
+
+        .level-sub {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-bar">
+            <a href="dashboard.html" class="logo">EnergieQuest</a>
+            <button class="menu-btn"><i class="fa-solid fa-bars"></i></button>
+        </div>
+
+        <!-- Header Stats -->
+        <div style="margin-bottom: 20px;">
+            <h2 style="font-size: 1.5rem; margin-bottom: 5px;">Gutscheine & Level</h2>
+        </div>
+
+        <!-- Level Card -->
+        <div class="card">
+            <div class="level-info">
+                <div>
+                    <div class="level-label">Aktuelles Level</div>
+                    <div class="level-number" id="currentLevel">2</div>
+                </div>
+                <div class="trophy-icon">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-labels">
+                    <span>Fortschritt zu Level <span id="nextLevelNum">3</span></span>
+                    <span id="progressText">3/4 Empfehlungen</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar" style="width: 75%"></div>
+                </div>
+                <div class="progress-text" id="remainingText">Noch 1 genehmigte Empfehlung bis Level 3</div>
+            </div>
+        </div>
+
+        <!-- Total Voucher Card -->
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Gesamte Gutscheine verdient</div>
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color); margin-top: 5px;" id="totalVoucherValue">40€</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level Overview -->
+        <div>
+            <h3 style="font-size: 1.1rem; margin-bottom: 15px;">Level-Übersicht</h3>
+            <div class="level-timeline" id="levelContainer">
+                <!-- Wird per JS gefüllt -->
+            </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="card" style="margin-top: 20px; display: flex; gap: 15px;">
+            <div style="width: 40px; height: 40px; background: #F3F4F6; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <i class="fa-regular fa-circle-question" style="color: var(--text-secondary);"></i>
+            </div>
+            <div>
+                <h4 style="margin: 0 0 5px 0;">Wie verdiene ich Gutscheine?</h4>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.4;">
+                    Für jeden erfolgreich abgeschlossenen Tarifwechsel einer empfohlenen Person erhältst du Punkte. Je mehr Empfehlungen, desto höher dein Level und desto mehr Gutscheine kannst du freischalten!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fa-solid fa-house nav-icon"></i>
+            <span>Home</span>
+        </a>
+        <a href="empfehlungen.html" class="nav-item">
+            <i class="fa-solid fa-user-plus nav-icon"></i>
+            <span>Empfehlungen</span>
+        </a>
+        <a href="gutscheine.html" class="nav-item active">
+            <i class="fa-solid fa-ticket nav-icon"></i>
+            <span>Gutscheine</span>
+        </a>
+        <a href="upload.html" class="nav-item">
+            <i class="fa-solid fa-cloud-arrow-up nav-icon"></i>
+            <span>Uploads</span>
+        </a>
+        <a href="profil.html" class="nav-item">
+            <i class="fa-regular fa-user nav-icon"></i>
+            <span>Profil</span>
+        </a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Level Config (Dynamisch berechnet: +1, +2, +3...)
+        // Werte: 15€ Start, dann +10€ Schritte
+        const levels = [
+            { level: 0, required: 0, reward: 'Kein Gutschein', value: 0, label: 'Startlevel' },
+            { level: 1, required: 1, reward: '15€', value: 15, label: '1 genehmigte Empfehlung' },
+            { level: 2, required: 3, reward: '25€', value: 25, label: '3 genehmigte Empfehlungen' },
+            { level: 3, required: 6, reward: '35€', value: 35, label: '6 genehmigte Empfehlungen' },
+            { level: 4, required: 10, reward: '45€', value: 45, label: '10 genehmigte Empfehlungen' },
+            { level: 5, required: 15, reward: '55€', value: 55, label: '15 genehmigte Empfehlungen' },
+            { level: 6, required: 21, reward: '65€', value: 65, label: '21 genehmigte Empfehlungen' },
+            { level: 7, required: 28, reward: '75€', value: 75, label: '28 genehmigte Empfehlungen' }
+        ];
+
+        async function initPage() {
+            const session = await checkAuth();
+            // Fallback falls nicht eingeloggt (für Demo)
+            let successCount = 0;
+            
+            if (session) {
+                // WICHTIG: Wir zählen nur Status 2 (Genehmigt)
+                const { count } = await supabase
+                    .from('referrals')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('referrer_id', session.user.id)
+                    .eq('status', 2); 
+                successCount = count || 0;
+            }
+
+            // Level berechnen
+            let currentLevel = 0;
+            let earnedTotal = 0;
+            let nextLevel = levels[1];
+            
+            for (let i = 0; i < levels.length; i++) {
+                if (successCount >= levels[i].required) {
+                    currentLevel = i;
+                    earnedTotal = levels[i].value;
+                } else {
+                    nextLevel = levels[i];
+                    break;
+                }
+            }
+
+            // Stats rendern
+            document.getElementById('currentLevel').textContent = currentLevel;
+            document.getElementById('totalVoucherValue').textContent = earnedTotal + '€';
+
+            if (nextLevel && currentLevel < 7) {
+                document.getElementById('nextLevelNum').textContent = currentLevel + 1;
+                document.getElementById('progressText').textContent = `${successCount}/${nextLevel.required} Empfehlungen`;
+                
+                const prevReq = levels[currentLevel].required;
+                const nextReq = nextLevel.required;
+                const progress = ((successCount - prevReq) / (nextReq - prevReq)) * 100;
+                
+                document.getElementById('progressBar').style.width = `${Math.max(5, progress)}%`;
+                document.getElementById('remainingText').textContent = `Noch ${nextReq - successCount} genehmigte Empfehlung(en) bis Level ${currentLevel + 1}`;
+            } else {
+                document.getElementById('nextLevelNum').textContent = "MAX";
+                document.getElementById('progressBar').style.width = '100%';
+                document.getElementById('remainingText').textContent = "Maximales Level erreicht!";
+            }
+
+            // Timeline rendern
+            const container = document.getElementById('levelContainer');
+            container.innerHTML = '';
+
+            levels.forEach(lvl => {
+                const isActive = lvl.level === currentLevel;
+                const isPassed = lvl.level < currentLevel;
+                let statusClass = '';
+                if (isActive) statusClass = 'active';
+                else if (isPassed) statusClass = 'passed';
+
+                // Rechter Teil: Icon oder Preis
+                let rightContent = '';
+                if (isPassed) {
+                    rightContent = '<i class="fa-solid fa-check" style="color: var(--primary-color);"></i>';
+                } else {
+                    rightContent = `
+                        <div class="level-reward ${lvl.value > 0 ? 'highlight' : ''}">${lvl.reward}</div>
+                        <div class="level-sub">${lvl.value > 0 ? 'Gutschein' : ''}</div>
+                    `;
+                }
+
+                // Aktuell-Badge?
+                let badge = '';
+                if (isActive) {
+                    badge = '<span class="status-badge">Aktuell</span>';
+                    rightContent = `
+                        <div class="level-reward highlight">${lvl.reward}</div>
+                        <div class="level-sub">${lvl.value > 0 ? 'Gutschein' : ''}</div>
+                    `;
+                }
+
+                const html = `
+                    <div class="level-item ${statusClass}">
+                        <div class="level-row">
+                            <div class="level-left">
+                                <!-- Falls der User die Nummer-Box meinte: Sie ist hier noch drin. -->
+                                <!-- Wenn er sie WEG haben will, müssen wir diesen Block entfernen: -->
+                                <!-- <div class="level-number-box">${lvl.level}</div> -->
+                                
+                                <!-- Aber ohne Box sieht es komisch aus, da "Level X" im Text steht.
+                                     Ich habe die TIMELINE-MARKER (linke Kreise) bereits entfernt. -->
+                                <div class="level-number-box">${lvl.level}</div>
+                                
+                                <div class="level-info-text">
+                                    <div style="display: flex; align-items: center;">
+                                        <h4>Level ${lvl.level}</h4>
+                                        ${badge}
+                                    </div>
+                                    <p>${lvl.label}</p>
+                                </div>
+                            </div>
+                            <div class="level-right">
+                                ${rightContent}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        initPage();
+    </script>
+</body>
+</html>
