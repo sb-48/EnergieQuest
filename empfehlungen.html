@@ -87,7 +87,7 @@
                 <table class="referral-table">
                     <thead>
                         <tr>
-                            <th>Datum</th>
+                            <th>Name</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -171,7 +171,7 @@
         async function loadReferralTable(userId) {
             const tbody = document.getElementById('referralTableBody');
             
-            const { data, error } = await supabase
+            const { data: referrals, error } = await supabase
                 .from('referrals')
                 .select('*')
                 .eq('referrer_id', userId)
@@ -183,18 +183,31 @@
                 return;
             }
 
-            if (!data || data.length === 0) {
+            if (!referrals || referrals.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--text-secondary);">Noch keine Empfehlungen</td></tr>`;
                 return;
             }
 
+            // Namen der geworbenen User laden
+            const userIds = referrals.map(r => r.referred_user_id);
+            const { data: profiles } = await supabase
+                .from('profiles')
+                .select('id, full_name')
+                .in('id', userIds);
+            
+            const nameMap = {};
+            if (profiles) {
+                profiles.forEach(p => {
+                    nameMap[p.id] = p.full_name || 'Unbekannt';
+                });
+            }
+
             tbody.innerHTML = ''; // Leeren
 
-            data.forEach(ref => {
-                const date = new Date(ref.created_at).toLocaleDateString('de-DE');
+            referrals.forEach(ref => {
+                const name = nameMap[ref.referred_user_id] || 'Unbekannt';
+                
                 let statusHtml = '';
-                let statusText = '';
-
                 // Status Logik: 0=Prüfung, 1=Abgeschlossen, 2=Genehmigt
                 switch(ref.status) {
                     case 0:
@@ -212,7 +225,7 @@
 
                 const row = `
                     <tr>
-                        <td>${date}</td>
+                        <td>${name}</td>
                         <td>${statusHtml}</td>
                     </tr>
                 `;

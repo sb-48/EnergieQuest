@@ -141,12 +141,12 @@
         const levels = [
             { level: 0, required: 0, reward: 'Kein Gutschein', value: 0 },
             { level: 1, required: 1, reward: '15€', value: 15 },
-            { level: 2, required: 2, reward: '25€', value: 25 },
-            { level: 3, required: 3, reward: '35€', value: 35 },
-            { level: 4, required: 4, reward: '45€', value: 45 },
-            { level: 5, required: 5, reward: '55€', value: 55 },
-            { level: 6, required: 6, reward: '65€', value: 65 },
-            { level: 7, required: 7, reward: '75€', value: 75 }
+            { level: 2, required: 3, reward: '25€', value: 25 },
+            { level: 3, required: 6, reward: '35€', value: 35 },
+            { level: 4, required: 10, reward: '45€', value: 45 },
+            { level: 5, required: 15, reward: '55€', value: 55 },
+            { level: 6, required: 21, reward: '65€', value: 65 },
+            { level: 7, required: 28, reward: '75€', value: 75 }
         ];
 
         async function initDashboard() {
@@ -190,11 +190,15 @@
             for (let i = 0; i < levels.length; i++) {
                 if (currentRefCount >= levels[i].required) {
                     currentLevel = i;
-                    earnedTotal = levels[i].value;
                 } else {
                     nextLevel = levels[i];
                     break;
                 }
+            }
+
+            // Gesamtwert berechnen (Summe aller erreichten Level)
+            for (let i = 1; i <= currentLevel; i++) {
+                earnedTotal += levels[i].value;
             }
 
             // UI Update
@@ -209,10 +213,14 @@
 
             if (nextLevel && currentLevel < 7) {
                 document.getElementById('nextLevelNum').textContent = currentLevel + 1;
-                document.getElementById('progressText').textContent = `${currentRefCount}/${nextLevel.required} Empfehlungen`;
-                
                 const prevReq = levels[currentLevel].required;
                 const nextReq = nextLevel.required;
+                
+                const achievedInLevel = currentRefCount - prevReq;
+                const neededInLevel = nextReq - prevReq;
+
+                document.getElementById('progressText').textContent = `${achievedInLevel}/${neededInLevel} Empfehlungen`;
+                
                 const progress = ((currentRefCount - prevReq) / (nextReq - prevReq)) * 100;
                 
                 document.getElementById('progressBar').style.width = `${Math.max(5, progress)}%`;

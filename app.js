@@ -258,8 +258,29 @@ async function signUpWithReferral(email, password, name, refCode) {
 
     console.log("User angelegt:", authData.user?.id);
     
-    // Der Datenbank-Trigger (handle_new_user) kümmert sich jetzt automatisch um den Referral-Eintrag!
-    // Wir müssen hier nichts mehr manuell in 'referrals' einfügen.
+    // Der Datenbank-Trigger (handle_new_user) sollte den Referral-Eintrag erstellen.
+    // BACKUP-STRATEGIE: Falls wir eine Session haben (Auto-Confirm), versuchen wir es auch client-seitig.
+    if (refCode && authData.session) {
+        try {
+            // 1. Werber ID holen
+            const { data: refData } = await supabase
+                .from('profiles')
+                .select('id')
+                .ilike('referral_code', refCode.trim()) // ILIKE für Case-Insensitive
+                .single();
+                
+            if (refData) {
+                 // 2. Insert versuchen (schlägt fehl wenn Trigger schon erfolgreich war -> wegen Conflict Policy oder DB Constraints egal)
+                 await supabase.from('referrals').insert({
+                    referrer_id: refData.id,
+                    referred_user_id: authData.user.id,
+                    status: 0
+                });
+            }
+        } catch (err) {
+            console.log("Backup-Insert übersprungen oder fehlgeschlagen (nicht schlimm wenn Trigger lief):", err);
+        }
+    }
 
     return { success: true };
 }

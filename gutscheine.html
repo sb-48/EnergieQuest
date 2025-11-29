@@ -230,16 +230,16 @@
     <script src="config.js"></script>
     <script src="app.js"></script>
     <script>
-        // Level Config (Linear: Level X = X Empfehlungen)
+        // Level Config (Kumulativ: +1, +2, +3...)
         const levels = [
             { level: 0, required: 0, reward: 'Kein Gutschein', value: 0, label: 'Startlevel' },
             { level: 1, required: 1, reward: '15€', value: 15, label: '1 genehmigte Empfehlung' },
-            { level: 2, required: 2, reward: '25€', value: 25, label: '2 genehmigte Empfehlungen' },
-            { level: 3, required: 3, reward: '35€', value: 35, label: '3 genehmigte Empfehlungen' },
-            { level: 4, required: 4, reward: '45€', value: 45, label: '4 genehmigte Empfehlungen' },
-            { level: 5, required: 5, reward: '55€', value: 55, label: '5 genehmigte Empfehlungen' },
-            { level: 6, required: 6, reward: '65€', value: 65, label: '6 genehmigte Empfehlungen' },
-            { level: 7, required: 7, reward: '75€', value: 75, label: '7 genehmigte Empfehlungen' }
+            { level: 2, required: 3, reward: '25€', value: 25, label: '2 weitere Empfehlungen' },
+            { level: 3, required: 6, reward: '35€', value: 35, label: '3 weitere Empfehlungen' },
+            { level: 4, required: 10, reward: '45€', value: 45, label: '4 weitere Empfehlungen' },
+            { level: 5, required: 15, reward: '55€', value: 55, label: '5 weitere Empfehlungen' },
+            { level: 6, required: 21, reward: '65€', value: 65, label: '6 weitere Empfehlungen' },
+            { level: 7, required: 28, reward: '75€', value: 75, label: '7 weitere Empfehlungen' }
         ];
 
         async function initPage() {
@@ -265,11 +265,17 @@
             for (let i = 0; i < levels.length; i++) {
                 if (successCount >= levels[i].required) {
                     currentLevel = i;
-                    earnedTotal = levels[i].value;
+                    // earnedTotal akkumulieren wir später oder hier?
+                    // Einfacher: Nach der Loop berechnen.
                 } else {
                     nextLevel = levels[i];
                     break;
                 }
+            }
+
+            // Gesamtwert berechnen (Summe aller erreichten Level)
+            for (let i = 1; i <= currentLevel; i++) {
+                earnedTotal += levels[i].value;
             }
 
             // Stats rendern
@@ -278,10 +284,14 @@
 
             if (nextLevel && currentLevel < 7) {
                 document.getElementById('nextLevelNum').textContent = currentLevel + 1;
-                document.getElementById('progressText').textContent = `${successCount}/${nextLevel.required} Empfehlungen`;
-                
                 const prevReq = levels[currentLevel].required;
                 const nextReq = nextLevel.required;
+                
+                const achievedInLevel = successCount - prevReq;
+                const neededInLevel = nextReq - prevReq;
+
+                document.getElementById('progressText').textContent = `${achievedInLevel}/${neededInLevel} Empfehlungen`;
+                
                 const progress = ((successCount - prevReq) / (nextReq - prevReq)) * 100;
                 
                 document.getElementById('progressBar').style.width = `${Math.max(5, progress)}%`;
