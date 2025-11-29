@@ -132,6 +132,21 @@
             font-size: 0.7rem;
             margin-left: 8px;
         }
+
+        /* Truhen Styles */
+        .chest-icon {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.2s ease;
+        }
+        .chest-open {
+            transform: scale(1.2); /* Offene Truhen größer */
+        }
+        .chest-closed {
+            transform: scale(0.8); /* Geschlossene Truhen kleiner */
+            opacity: 0.8; /* Optional: etwas blasser */
+        }
     </style>
 </head>
 <body>
@@ -172,7 +187,7 @@
 
         <!-- Total Voucher Card -->
         <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; justify-content: center; align-items: center; text-align: center;">
                 <div>
                     <div style="color: var(--text-secondary); font-size: 0.9rem;">Gesamte Gutscheine verdient</div>
                     <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color); margin-top: 5px;" id="totalVoucherValue"> €</div>
@@ -326,8 +341,11 @@
 
                 // Truhen-Bild Logik
                 let chestImage = 'assets/geschlossene_truhe.jpeg';
+                let chestClass = 'chest-closed';
+
                 if (isPassed || isActive) {
                     chestImage = 'assets/offene_truhe.png';
+                    chestClass = 'chest-open';
                 }
 
                 // Aktuell-Badge
@@ -341,8 +359,8 @@
                         <div class="level-row">
                             <div class="level-left">
                                 <!-- Truhen Bild statt Nummer-Box -->
-                                <div class="level-number-box" style="background: transparent; width: 50px; height: 50px;">
-                                    <img src="${chestImage}" alt="Truhe" style="width: 100%; height: 100%; object-fit: contain;">
+                                <div class="level-number-box" style="background: transparent; width: 60px; height: 60px; flex-shrink: 0;">
+                                    <img src="${chestImage}" alt="Truhe" class="chest-icon ${chestClass}">
                                 </div>
                                 
                                 <div class="level-info-text">

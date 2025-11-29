@@ -16,7 +16,6 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 }
 
 // Supabase Client initialisieren
-// Wir prüfen, ob supabase global verfügbar ist (durch das CDN script im HTML)
 let supabase;
 if (typeof createClient !== 'undefined') {
     supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -53,6 +52,9 @@ async function uploadFile(file, bucketName = 'uploads') {
             });
 
         if (error) throw error;
+
+        // E-Mail Benachrichtigung senden (Asynchron)
+        notifyAdminAboutUpload(session.user, file.name).catch(err => console.error("Fehler beim Senden der Benachrichtigung:", err));
 
         return {
             success: true,
@@ -236,7 +238,7 @@ async function signUpWithReferral(email, password, name, refCode) {
         options: { 
             data: { 
                 name: name,
-                referral_code_used: refCode // <--- WICHTIG: Hier speichern wir den Code für den Trigger
+                referral_code_used: refCode 
             },
             emailRedirectTo: window.location.origin + '/index.html'
         }
@@ -244,14 +246,13 @@ async function signUpWithReferral(email, password, name, refCode) {
 
     if (authError) {
         console.error("Auth Fehler:", authError);
-        // Bessere Fehlermeldung für User
         if (authError.message.includes("already registered") || authError.status === 422) {
             return { success: false, error: "Diese E-Mail-Adresse ist bereits registriert. Bitte melde dich an." };
         }
         return { success: false, error: authError.message };
     }
 
-    // Sicherheitscheck: Wenn User existiert aber Identities leer sind
+    // Sicherheitscheck
     if (authData.user && authData.user.identities && authData.user.identities.length === 0) {
         return { success: false, error: "Diese E-Mail-Adresse ist bereits registriert. Bitte melde dich an." };
     }
@@ -266,11 +267,10 @@ async function signUpWithReferral(email, password, name, refCode) {
             const { data: refData } = await supabase
                 .from('profiles')
                 .select('id')
-                .ilike('referral_code', refCode.trim()) // ILIKE für Case-Insensitive
+                .ilike('referral_code', refCode.trim())
                 .single();
                 
             if (refData) {
-                 // 2. Insert versuchen (schlägt fehl wenn Trigger schon erfolgreich war -> wegen Conflict Policy oder DB Constraints egal)
                  await supabase.from('referrals').insert({
                     referrer_id: refData.id,
                     referred_user_id: authData.user.id,
@@ -278,7 +278,7 @@ async function signUpWithReferral(email, password, name, refCode) {
                 });
             }
         } catch (err) {
-            console.log("Backup-Insert übersprungen oder fehlgeschlagen (nicht schlimm wenn Trigger lief):", err);
+            console.log("Backup-Insert übersprungen oder fehlgeschlagen:", err);
         }
     }
 
@@ -286,19 +286,17 @@ async function signUpWithReferral(email, password, name, refCode) {
 }
 
 // --- MENU SYSTEM ---
-// Initialisiert das Burgermenü auf allen Seiten
 document.addEventListener('DOMContentLoaded', () => {
     const menuBtn = document.querySelector('.menu-btn');
     if (!menuBtn) return;
 
-    // Overlay erstellen (falls nicht da)
     if (!document.getElementById('mobileMenuOverlay')) {
         const overlay = document.createElement('div');
         overlay.id = 'mobileMenuOverlay';
         overlay.style.cssText = `
             position: fixed;
             top: 0;
-            right: -300px; /* Startposition außerhalb */
+            right: -300px;
             width: 280px;
             height: 100%;
             background: white;
@@ -310,7 +308,6 @@ document.addEventListener('DOMContentLoaded', () => {
             flex-direction: column;
         `;
         
-        // Hintergrund-Dimmer
         const backdrop = document.createElement('div');
         backdrop.id = 'menuBackdrop';
         backdrop.style.cssText = `
@@ -326,7 +323,6 @@ document.addEventListener('DOMContentLoaded', () => {
             transition: opacity 0.3s ease;
         `;
 
-        // Menu Content
         overlay.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
                 <h2 style="font-size: 1.2rem; margin: 0;">Menü</h2>
@@ -358,7 +354,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(backdrop);
         document.body.appendChild(overlay);
 
-        // Event Listeners
         const closeBtn = document.getElementById('closeMenuBtn');
         const logoutBtn = document.getElementById('menuLogoutBtn');
 
@@ -392,3 +387,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+// --- NOTIFICATION SYSTEM ---
+
+async function notifyAdminAboutUpload(user, fileName) {
+    try {
+        // 1. Profil-Daten holen (für Full Name)
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', user.id)
+            .single();
+            
+        const fullName = profile?.full_name || 'Unbekannter Name';
+        const email = user.email;
+
+        console.log("Rufe Edge Function 'send-email' auf...");
+
+        // 2. Edge Function aufrufen
+        // Die URL wird automatisch aus dem Supabase Client ermittelt
+        const { data, error } = await supabase.functions.invoke('send-email', {
+            body: {
+                fileName: fileName,
+                userEmail: email,
+                fullName: fullName
+            }
+        });
+
+        if (error) {
+            throw error;
+        }
+
+        console.log("E-Mail Benachrichtigung erfolgreich angestoßen:", data);
+
+    } catch (e) {
+        console.error("Fehler beim Erstellen der Benachrichtigung:", e);
+        // Fallback Logging
+        console.log(`[FALLBACK LOG] Upload von ${user.email}: ${fileName}`);
+    }
+}
