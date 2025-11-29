@@ -8,6 +8,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Layout Anpassungen */
+        .top-bar {
+            justify-content: center;
+            position: relative;
+        }
+        .menu-btn {
+            position: absolute;
+            right: 0;
+        }
+        .welcome-section {
+            text-align: center;
+        }
+        .card h3 {
+            text-align: center;
+        }
+
         /* Tabellen Styles */
         .referral-table {
             width: 100%;
@@ -52,7 +68,7 @@
         </div>
 
         <div class="card">
-            <h3>Dein Status</h3>
+            <h3>Mein Status</h3>
             <div class="stats-grid" style="margin-top: 15px;">
                 <div class="stat-card">
                     <div class="stat-value" id="successCount">0</div>
@@ -66,7 +82,7 @@
         </div>
 
         <div class="card">
-            <h3>Deine Empfehlungen</h3>
+            <h3>Meine Empfehlungen</h3>
             <div style="overflow-x: auto;">
                 <table class="referral-table">
                     <thead>
@@ -87,7 +103,7 @@
         <div class="card">
             <h3>Freunde einladen</h3>
             <p style="color: var(--text-secondary); margin: 10px 0; font-size: 0.9rem;">
-                Teile deinen persönlichen Code mit Freunden. Für jede erfolgreiche Anmeldung erhältst du 20€ Guthaben!
+                Teile meinen persönlichen Code mit Freunden. Für jede erfolgreiche Anmeldung erhalte ich 20€ Guthaben!
             </p>
             <div class="referral-code-box" id="myRefCode">Lade Code...</div>
             <button class="btn-share" id="shareBtn">

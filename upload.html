@@ -7,6 +7,39 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .top-bar {
+            justify-content: center;
+            position: relative;
+        }
+        .menu-btn {
+            position: absolute;
+            right: 0;
+        }
+        .welcome-section {
+            text-align: center;
+        }
+        .card h3 {
+            text-align: center;
+        }
+        /* Upload-spezifisch: Zentriere Dropzone Inhalt */
+        .upload-dropzone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Zentriere die Liste */
+        #fileList {
+            text-align: center;
+        }
+        /* Zentriere die Upload-Buttons */
+        #uploadBtn, .logout-btn {
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -17,7 +50,7 @@
 
         <div class="welcome-section">
             <h1>Dateien hochladen</h1>
-            <p>Lade deine Energiedaten und Dokumente hoch</p>
+            <p>Lade meine Energiedaten und Dokumente hoch</p>
         </div>
 
         <div class="card">
@@ -39,7 +72,7 @@
         </div>
 
         <div class="card">
-            <h3>Deine Uploads</h3>
+            <h3>Meine Uploads</h3>
             <div id="uploadedFilesList" style="margin-top: 15px;">
                 <p style="text-align: center;">Lade Liste...</p>
             </div>

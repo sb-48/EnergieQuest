@@ -7,6 +7,24 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .top-bar {
+            justify-content: center;
+            position: relative;
+        }
+        .menu-btn {
+            position: absolute;
+            right: 0;
+        }
+        .welcome-section {
+            text-align: center;
+        }
+        /* Profilspezifisch: Zentriere auch den Namen neben dem Icon */
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -17,10 +35,10 @@
 
         <div class="welcome-section">
             <h1>Mein Profil</h1>
-            <p>Verwalte deine Einstellungen</p>
+            <p>Verwalte meine Einstellungen</p>
         </div>
 
-        <div class="card" style="display: flex; align-items: center; gap: 15px;">
+        <div class="card profile-header" style="display: flex; align-items: center; gap: 15px;">
             <div style="width: 60px; height: 60px; background: #E0E7FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #4F46E5;">
                 <i class="fa-solid fa-user"></i>
             </div>
@@ -50,6 +68,13 @@
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-circle-question" style="color: var(--text-secondary);"></i>
                         <span>Hilfe & Support</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="color: #D1D5DB; font-size: 0.8rem;"></i>
+                </div>
+                <div style="padding: 15px 0; border-top: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="window.location.href='datenschutz.html'">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-file-shield" style="color: var(--text-secondary);"></i>
+                        <span>Datenschutzerklärung</span>
                     </div>
                     <i class="fa-solid fa-chevron-right" style="color: #D1D5DB; font-size: 0.8rem;"></i>
                 </div>

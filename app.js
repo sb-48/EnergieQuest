@@ -229,13 +229,16 @@ async function shareReferralLink() {
 async function signUpWithReferral(email, password, name, refCode) {
     console.log("Starte Registrierung...", { email, refCode });
 
-    // 1. User registrieren
+    // 1. User registrieren und Ref-Code direkt als Metadaten mitsenden
     const { data: authData, error: authError } = await supabase.auth.signUp({
         email: email,
         password: password,
         options: { 
-            data: { name: name },
-            emailRedirectTo: window.location.origin + '/index.html' // Wichtig für Flow
+            data: { 
+                name: name,
+                referral_code_used: refCode // <--- WICHTIG: Hier speichern wir den Code für den Trigger
+            },
+            emailRedirectTo: window.location.origin + '/index.html'
         }
     });
 
@@ -248,54 +251,15 @@ async function signUpWithReferral(email, password, name, refCode) {
         return { success: false, error: authError.message };
     }
 
-    // Sicherheitscheck: Wenn User existiert aber Identities leer sind (kann bei doppelter Registrierung passieren je nach Config)
+    // Sicherheitscheck: Wenn User existiert aber Identities leer sind
     if (authData.user && authData.user.identities && authData.user.identities.length === 0) {
         return { success: false, error: "Diese E-Mail-Adresse ist bereits registriert. Bitte melde dich an." };
     }
 
     console.log("User angelegt:", authData.user?.id);
-
-    // 2. Wenn Ref-Code vorhanden, Verknüpfung erstellen
-    if (refCode && authData.user) {
-        try {
-            console.log("Suche Werber-Code:", refCode);
-            
-            // Finde die User-ID des Werbers anhand des Codes
-            const { data: referrerData, error: refError } = await supabase
-                .from('profiles')
-                .select('id')
-                .eq('referral_code', refCode)
-                .single();
-
-            if (refError || !referrerData) {
-                console.warn("Werber nicht gefunden oder Fehler:", refError);
-                // Wir brechen hier nicht ab, Registrierung war ja erfolgreich
-                return { success: true, warning: "Referral Code ungültig" };
-            }
-
-            console.log("Werber gefunden:", referrerData.id);
-
-            // WICHTIG: Wir müssen kurz warten oder sicherstellen, dass der Trigger das Profil des NEUEN Users angelegt hat.
-            // Aber in 'referrals' speichern wir nur die ID, das sollte auch ohne Profil gehen, solange auth.users existiert.
-            
-            // Eintrag in die Empfehlungs-Tabelle
-            const { error: insertError } = await supabase.from('referrals').insert({
-                referrer_id: referrerData.id,
-                referred_user_id: authData.user.id,
-                status: 0 // 0 = Default Status
-            });
-
-            if (insertError) {
-                console.error("Fehler beim Speichern des Referrals:", insertError);
-                // Auch hier: User ist registriert, nur der Ref-Link hat gefehlt.
-            } else {
-                console.log("Referral erfolgreich gespeichert!");
-            }
-
-        } catch (err) {
-            console.error("Unerwarteter Fehler im Referral-Prozess:", err);
-        }
-    }
+    
+    // Der Datenbank-Trigger (handle_new_user) kümmert sich jetzt automatisch um den Referral-Eintrag!
+    // Wir müssen hier nichts mehr manuell in 'referrals' einfügen.
 
     return { success: true };
 }

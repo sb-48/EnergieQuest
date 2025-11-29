@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnergieQuest - Infos & Spielregeln</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Layout Anpassungen */
+        .top-bar {
+            justify-content: center;
+            position: relative;
+        }
+        .menu-btn {
+            position: absolute;
+            right: 0;
+        }
+        .welcome-section {
+            text-align: center;
+        }
+        .card h3 {
+            text-align: center;
+        }
+
+        /* Zusätzliche Styles für Infoseite */
+        .rule-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center; /* Auch hier zentrieren */
+            color: var(--primary-dark);
+        }
+        .rule-section p, .rule-section li {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .rule-section ul {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+        .rule-section li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-bar">
+            <a href="dashboard.html" class="logo">EnergieQuest</a>
+            <button class="menu-btn"><i class="fa-solid fa-bars"></i></button>
+        </div>
+
+        <div class="welcome-section">
+            <h1>Infos & Spielregeln</h1>
+            <p>So funktioniert EnergieQuest</p>
+        </div>
+
+        <!-- Ziel des Spiels -->
+        <div class="card rule-section">
+            <h3><i class="fa-solid fa-bullseye"></i> Ziel des Spiels</h3>
+            <p>
+                EnergieQuest ist ein Empfehlungs- und Belohnungsspiel. 
+                Das Ziel ist es, Energie zu sparen, Freunde einzuladen, Aufgaben zu erfüllen und dadurch Level aufzusteigen sowie Gutscheine zu verdienen.
+            </p>
+        </div>
+
+        <!-- 1. Levels & Fortschritt -->
+        <div class="card rule-section">
+            <h3><i class="fa-solid fa-layer-group"></i> 1. Levels & Fortschritt</h3>
+            <ul>
+                <li>Jeder Spieler startet mit <strong>Level 0</strong>.</li>
+                <li>Um ein Level aufzusteigen, muss eine Empfehlung abgeschlossen werden. 
+                    <br><em>Voraussetzung:</em> Die empfohlene Person lädt ihre Stromrechnung hoch und lässt ihren Stromtarif optimieren.
+                </li>
+                <li>Der Fortschritt wird im Dashboard angezeigt.</li>
+                <li>Höhere Level schalten frei:
+                    <ul>
+                        <li>Höhere Belohnungen</li>
+                        <li>Zusätzliche Gutscheine</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 2. Empfehlungen -->
+        <div class="card rule-section">
+            <h3><i class="fa-solid fa-user-plus"></i> 2. Empfehlungen</h3>
+            <p>Jeder Spieler erhält einen persönlichen Empfehlungscode.</p>
+            <ul>
+                <li>Wird der Code von einer neuen Person verwendet, entsteht eine "ausstehende" Empfehlung.</li>
+                <li>Eine Empfehlung gilt als <strong>erfolgreich</strong>, wenn:
+                    <ol>
+                        <li>Die eingeladene Person ein Profil erstellt.</li>
+                        <li>Mindestens eine Quest erfüllt (z. B. Upload einer Stromrechnung).</li>
+                    </ol>
+                </li>
+                <li>Für jede erfolgreiche Empfehlung erhalte ich Punkte und Fortschritt für mein nächstes Level.</li>
+            </ul>
+        </div>
+
+        <!-- 3. Upload-Quests -->
+        <div class="card rule-section">
+            <h3><i class="fa-solid fa-cloud-arrow-up"></i> 3. Upload-Quests</h3>
+            <p>Upload-Quests sind Aufgaben, bei denen du Fotos oder Screenshots einreichen kannst (z.B. Nachweis energiesparender Tätigkeiten).</p>
+            <p><strong>Regeln:</strong></p>
+            <ol>
+                <li>Uploads müssen echt, unverändert und selbst angefertigt sein.</li>
+                <li>Jeder Upload wird geprüft.</li>
+                <li>Gültige Uploads bringen Quest-Punkte und Level-Fortschritt.</li>
+            </ol>
+        </div>
+
+        <!-- 4. Gutscheine -->
+        <div class="card rule-section">
+            <h3><i class="fa-solid fa-ticket"></i> 4. Gutscheine</h3>
+            <p>Für bestimmte Meilensteine erhältst du Gutscheine (Energierabatte, Partnerprämien, Sachgutscheine).</p>
+            <ul>
+                <li>Jeder Gutschein hat eine Beschreibung, einen Wert und ein Ablaufdatum.</li>
+                <li>Zu finden im Menü unter "Gutscheine".</li>
+            </ul>
+        </div>
+
+        <!-- 5. Profil & Daten -->
+        <div class="card rule-section">
+            <h3><i class="fa-solid fa-id-card"></i> 5. Profil & Daten</h3>
+            <p>Im Profil kann ich meine Daten verwalten und meinen Fortschritt einsehen. Alle Daten werden nur für das Spiel und zur Vergabe von Belohnungen genutzt.</p>
+        </div>
+
+        <!-- 6. Belohnungssystem -->
+        <div class="card rule-section">
+            <h3><i class="fa-solid fa-gift"></i> 6. Belohnungssystem</h3>
+            <ul>
+                <li><strong>Punkte:</strong> Für Uploads, Empfehlungen und Quests.</li>
+                <li><strong>Level-Fortschritt:</strong> Durch Kombination aus Aktivitäten.</li>
+                <li><strong>Gutscheine:</strong> Bei Erreichen bestimmter Punkte- oder Level-Meilensteine.</li>
+            </ul>
+        </div>
+
+        <!-- 7. Fair Play -->
+        <div class="card rule-section" style="border-left: 4px solid var(--warning-color);">
+            <h3 style="color: var(--warning-color);"><i class="fa-solid fa-scale-balanced"></i> 7. Regeln & Fair Play</h3>
+            <p>Damit EnergieQuest fair bleibt, gelten folgende Regeln:</p>
+            <ol>
+                <li>Keine Fake-Profile.</li>
+                <li>Keine mehrfachen Registrierungen durch dieselbe Person.</li>
+                <li>Keine künstlichen Uploads oder KI-Bilder - nur echte Fotos.</li>
+                <li>Keine Manipulation am Empfehlungssystem.</li>
+            </ol>
+            <p style="margin-top: 10px; font-weight: 600; color: var(--danger-color);">
+                Verstöße können zur Löschung von Punkten, Sperrung des Kontos oder Verlust von Gutscheinen führen.
+            </p>
+        </div>
+
+        <!-- 8. Wie man gewinnt -->
+        <div class="card rule-section">
+            <h3><i class="fa-solid fa-trophy"></i> 8. Wie man gewinnt</h3>
+            <p>Man „gewinnt" EnergieQuest nicht einmalig — es ist ein laufendes System.</p>
+            <p>Spieler, die langfristig aktiv bleiben und Empfehlungen versenden, erreichen:</p>
+            <ul>
+                <li>Höhere Level</li>
+                <li>Mehr Gutscheine</li>
+                <li>Bessere Badges</li>
+                <li>Besondere Bonus-Quests</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fa-solid fa-house nav-icon"></i>
+            <span>Home</span>
+        </a>
+        <a href="empfehlungen.html" class="nav-item">
+            <i class="fa-solid fa-user-plus nav-icon"></i>
+            <span>Empfehlungen</span>
+        </a>
+        <a href="gutscheine.html" class="nav-item">
+            <i class="fa-solid fa-ticket nav-icon"></i>
+            <span>Gutscheine</span>
+        </a>
+        <a href="upload.html" class="nav-item">
+            <i class="fa-solid fa-cloud-arrow-up nav-icon"></i>
+            <span>Uploads</span>
+        </a>
+        <a href="profil.html" class="nav-item">
+            <i class="fa-regular fa-user nav-icon"></i>
+            <span>Profil</span>
+        </a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

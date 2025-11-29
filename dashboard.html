@@ -8,6 +8,23 @@
     <!-- Font Awesome für Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Dashboard spezifische Anpassungen */
+        .top-bar {
+            justify-content: center; /* Logo zentrieren */
+            position: relative;
+        }
+        .menu-btn {
+            position: absolute;
+            right: 0; /* Burger Menü rechts fixieren */
+        }
+        .welcome-section {
+            text-align: center;
+        }
+        .card h3 {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -25,14 +42,9 @@
 
         <!-- Level Card -->
         <div class="card">
-            <div class="level-info">
-                <div>
-                    <div class="level-label">Aktuelles Level</div>
-                    <div class="level-number" id="currentLevel">0</div>
-                </div>
-                <div class="trophy-icon">
-                    <i class="fa-solid fa-trophy"></i>
-                </div>
+            <div class="level-info" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-bottom: 20px;">
+                <div class="level-label" style="margin-bottom: 10px;">Aktuelles Level</div>
+                <div class="level-number" id="currentLevel" style="margin: 0;">0</div>
             </div>
             
             <div class="progress-container">
@@ -50,24 +62,24 @@
         <!-- Stats Grid -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-value" id="successCount">0</div>
+                <div class="stat-value" id="successCount"></div>
                 <div class="stat-label">Erfolgreiche Empfehlungen</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value orange" id="pendingCount">0</div>
+                <div class="stat-value orange" id="pendingCount"></div>
                 <div class="stat-label">Ausstehend</div>
             </div>
         </div>
 
         <!-- Voucher Card -->
         <div class="card" style="text-align: center;">
-            <div class="stat-value" id="totalVoucherValue">0€</div>
+            <div class="stat-value" id="totalVoucherValue"></div>
             <div class="stat-label">Gesamte Gutscheine verdient</div>
         </div>
 
         <!-- Referral Code -->
         <div class="card">
-            <h3>Dein Empfehlungscode</h3>
+            <h3>Mein Empfehlungscode</h3>
             <div class="referral-code-box" id="myRefCode">Lade...</div>
             <button class="btn-share" id="shareBtn">
                 <i class="fa-solid fa-share-nodes"></i> Link teilen
@@ -90,7 +102,7 @@
                     <i class="fa-solid fa-cloud-arrow-up action-icon blue"></i>
                     <span class="action-label">Upload</span>
                 </button>
-                <button class="action-button purple" onclick="window.location.href='profil.html'">
+                <button class="action-button purple" onclick="window.location.href='infos.html'">
                     <i class="fa-solid fa-bell action-icon purple"></i>
                     <span class="action-label">Infos</span>
                 </button>
@@ -129,12 +141,12 @@
         const levels = [
             { level: 0, required: 0, reward: 'Kein Gutschein', value: 0 },
             { level: 1, required: 1, reward: '15€', value: 15 },
-            { level: 2, required: 3, reward: '25€', value: 25 },
-            { level: 3, required: 6, reward: '35€', value: 35 },
-            { level: 4, required: 10, reward: '45€', value: 45 },
-            { level: 5, required: 15, reward: '55€', value: 55 },
-            { level: 6, required: 21, reward: '65€', value: 65 },
-            { level: 7, required: 28, reward: '75€', value: 75 }
+            { level: 2, required: 2, reward: '25€', value: 25 },
+            { level: 3, required: 3, reward: '35€', value: 35 },
+            { level: 4, required: 4, reward: '45€', value: 45 },
+            { level: 5, required: 5, reward: '55€', value: 55 },
+            { level: 6, required: 6, reward: '65€', value: 65 },
+            { level: 7, required: 7, reward: '75€', value: 75 }
         ];
 
         async function initDashboard() {
@@ -186,7 +198,13 @@
             }
 
             // UI Update
-            document.getElementById('currentLevel').textContent = currentLevel;
+            if (currentLevel === 0) {
+                document.getElementById('currentLevel').textContent = '0';
+            } else {
+                const levelImgPath = `assets/lvl${currentLevel}.jpeg`;
+                document.getElementById('currentLevel').innerHTML = `<img src="${levelImgPath}" alt="Level ${currentLevel}" style="height: 120px; width: auto; object-fit: contain;">`;
+            }
+
             document.getElementById('totalVoucherValue').textContent = earnedTotal + '€';
 
             if (nextLevel && currentLevel < 7) {

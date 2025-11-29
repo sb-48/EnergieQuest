@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnergieQuest - Datenschutz & AGB</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .top-bar {
+            justify-content: center;
+            position: relative;
+        }
+        .menu-btn {
+            position: absolute;
+            right: 0;
+        }
+        .welcome-section {
+            text-align: center;
+        }
+        .card h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--primary-dark);
+        }
+        .content-section h4 {
+            color: var(--text-primary);
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+        .content-section p, .content-section ul, .content-section li {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .content-section ul {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+        .accordion-item {
+            border-bottom: 1px solid #E5E7EB;
+            padding: 10px 0;
+        }
+        .accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .accordion-content {
+            display: none;
+            padding-top: 10px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .accordion-content.open {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-bar">
+            <a href="dashboard.html" class="logo">EnergieQuest</a>
+            <button class="menu-btn"><i class="fa-solid fa-bars"></i></button>
+        </div>
+
+        <div class="welcome-section">
+            <h1>Rechtliches</h1>
+            <p>Datenschutz, AGB und FAQ</p>
+        </div>
+
+        <!-- Datenschutzerklärung -->
+        <div class="card content-section">
+            <h3><i class="fa-solid fa-shield-halved"></i> Datenschutzerklärung</h3>
+            
+            <h4>1. Verantwortlicher</h4>
+            <p>Verantwortlich für die Datenverarbeitung:<br>
+            [Firma / Betreibername]<br>
+            [Adresse]<br>
+            [E-Mail]</p>
+
+            <h4>2. Art der verarbeiteten Daten</h4>
+            <ul>
+                <li>Vor- und Nachname, Adresse, Telefon, E-Mail</li>
+                <li>IBAN, Vertrags- und Zählerdaten</li>
+                <li>Hochgeladene Dokumente (z.B. Stromrechnungen)</li>
+                <li>Weiterempfehlungsdaten</li>
+            </ul>
+
+            <h4>3. Zwecke der Verarbeitung</h4>
+            <ul>
+                <li>Tarifoptimierung und Vertragsanalyse</li>
+                <li>Digitale Unterschrift (rSign)</li>
+                <li>Kundenkommunikation & Gutscheinverwaltung</li>
+            </ul>
+
+            <h4>4. Weitergabe an Dritte</h4>
+            <p>Daten werden nur an Energieversorger (zum Wechsel) und rSign (zur Signatur) weitergegeben. Keine Weitergabe an unbeteiligte Dritte.</p>
+
+            <h4>Rechte & Sicherheit</h4>
+            <p>Sie haben das Recht auf Auskunft, Löschung und Widerruf. Ihre Daten werden verschlüsselt übertragen.</p>
+        </div>
+
+        <!-- AGB -->
+        <div class="card content-section">
+            <h3><i class="fa-solid fa-file-contract"></i> AGB</h3>
+            
+            <h4>Leistungsbeschreibung</h4>
+            <p>Wir prüfen Energieverträge, optimieren Tarife und wickeln den Wechsel digital ab.</p>
+
+            <h4>Kosten</h4>
+            <p>Der Service ist für den Kunden <strong>kostenlos</strong>. Wir erhalten Provisionen von Versorgern.</p>
+
+            <h4>Widerrufsrecht</h4>
+            <p>Da der Service digital und sofort erbracht wird, entfällt das Widerrufsrecht bei ausdrücklicher Zustimmung.</p>
+
+            <h4>Haftung</h4>
+            <p>Wir haften nicht für Vertragsablehnungen durch Versorger oder Preisänderungen.</p>
+        </div>
+
+        <!-- FAQ Accordion -->
+        <div class="card content-section">
+            <h3><i class="fa-regular fa-circle-question"></i> Häufige Fragen (FAQ)</h3>
+            
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    Wie funktioniert die Optimierung? <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    Sie laden Ihre Rechnung hoch, wir analysieren sie und senden Ihnen ein digitales Angebot.
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    Ist der Service kostenlos? <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    Ja. Wir finanzieren uns durch Provisionen der Energieversorger.
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    Wie unterschreibe ich? <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    Sie erhalten einen Link per SMS/E-Mail und unterschreiben sicher digital über rSign.
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    Was passiert mit meinen Daten? <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    Ihre Daten werden nur für den Wechsel genutzt und niemals ohne Grund weitergegeben.
+                </div>
+            </div>
+        </div>
+
+        <!-- Impressum -->
+        <div class="card content-section">
+            <h3><i class="fa-solid fa-building"></i> Impressum</h3>
+            <p>
+                <strong>Firmenname:</strong> [Bitte ergänzen]<br>
+                <strong>Vertreten durch:</strong> [Bitte ergänzen]<br>
+                <strong>Adresse:</strong> [Bitte ergänzen]<br>
+                <strong>Kontakt:</strong> [Telefon] | [E-Mail]<br>
+                <strong>Register:</strong> [Handelsregister/Nummer]<br>
+                <strong>USt-ID:</strong> [ID]
+            </p>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fa-solid fa-house nav-icon"></i>
+            <span>Home</span>
+        </a>
+        <a href="empfehlungen.html" class="nav-item">
+            <i class="fa-solid fa-user-plus nav-icon"></i>
+            <span>Empfehlungen</span>
+        </a>
+        <a href="gutscheine.html" class="nav-item">
+            <i class="fa-solid fa-ticket nav-icon"></i>
+            <span>Gutscheine</span>
+        </a>
+        <a href="upload.html" class="nav-item">
+            <i class="fa-solid fa-cloud-arrow-up nav-icon"></i>
+            <span>Uploads</span>
+        </a>
+        <a href="profil.html" class="nav-item active">
+            <i class="fa-regular fa-user nav-icon"></i>
+            <span>Profil</span>
+        </a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        function toggleAccordion(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('i');
+            
+            content.classList.toggle('open');
+            if (content.classList.contains('open')) {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        }
+    </script>
+</body>
+</html>
+

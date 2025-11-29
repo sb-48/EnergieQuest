@@ -8,6 +8,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Layout Anpassungen */
+        .top-bar {
+            justify-content: center;
+            position: relative;
+        }
+        .menu-btn {
+            position: absolute;
+            right: 0;
+        }
+        .welcome-section {
+            text-align: center;
+        }
+        .card h3, .card h4 {
+            text-align: center;
+        }
+
         /* Spezifische Styles für die Timeline */
         .level-timeline {
             position: relative;
@@ -126,7 +142,7 @@
         </div>
 
         <!-- Header Stats -->
-        <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 20px; text-align: center;">
             <h2 style="font-size: 1.5rem; margin-bottom: 5px;">Gutscheine & Level</h2>
         </div>
 
@@ -159,14 +175,14 @@
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
                     <div style="color: var(--text-secondary); font-size: 0.9rem;">Gesamte Gutscheine verdient</div>
-                    <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color); margin-top: 5px;" id="totalVoucherValue">40€</div>
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color); margin-top: 5px;" id="totalVoucherValue"> €</div>
                 </div>
             </div>
         </div>
 
         <!-- Level Overview -->
         <div>
-            <h3 style="font-size: 1.1rem; margin-bottom: 15px;">Level-Übersicht</h3>
+            <h3 style="font-size: 1.1rem; margin-bottom: 15px; text-align: center;">Level-Übersicht</h3>
             <div class="level-timeline" id="levelContainer">
                 <!-- Wird per JS gefüllt -->
             </div>
@@ -180,7 +196,7 @@
             <div>
                 <h4 style="margin: 0 0 5px 0;">Wie verdiene ich Gutscheine?</h4>
                 <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.4;">
-                    Für jeden erfolgreich abgeschlossenen Tarifwechsel einer empfohlenen Person erhältst du Punkte. Je mehr Empfehlungen, desto höher dein Level und desto mehr Gutscheine kannst du freischalten!
+                    Für jeden erfolgreich abgeschlossenen Tarifwechsel einer empfohlenen Person erhalte ich Punkte. Je mehr Empfehlungen, desto höher mein Level und desto mehr Gutscheine kann ich freischalten!
                 </p>
             </div>
         </div>
@@ -214,17 +230,16 @@
     <script src="config.js"></script>
     <script src="app.js"></script>
     <script>
-        // Level Config (Dynamisch berechnet: +1, +2, +3...)
-        // Werte: 15€ Start, dann +10€ Schritte
+        // Level Config (Linear: Level X = X Empfehlungen)
         const levels = [
             { level: 0, required: 0, reward: 'Kein Gutschein', value: 0, label: 'Startlevel' },
             { level: 1, required: 1, reward: '15€', value: 15, label: '1 genehmigte Empfehlung' },
-            { level: 2, required: 3, reward: '25€', value: 25, label: '3 genehmigte Empfehlungen' },
-            { level: 3, required: 6, reward: '35€', value: 35, label: '6 genehmigte Empfehlungen' },
-            { level: 4, required: 10, reward: '45€', value: 45, label: '10 genehmigte Empfehlungen' },
-            { level: 5, required: 15, reward: '55€', value: 55, label: '15 genehmigte Empfehlungen' },
-            { level: 6, required: 21, reward: '65€', value: 65, label: '21 genehmigte Empfehlungen' },
-            { level: 7, required: 28, reward: '75€', value: 75, label: '28 genehmigte Empfehlungen' }
+            { level: 2, required: 2, reward: '25€', value: 25, label: '2 genehmigte Empfehlungen' },
+            { level: 3, required: 3, reward: '35€', value: 35, label: '3 genehmigte Empfehlungen' },
+            { level: 4, required: 4, reward: '45€', value: 45, label: '4 genehmigte Empfehlungen' },
+            { level: 5, required: 5, reward: '55€', value: 55, label: '5 genehmigte Empfehlungen' },
+            { level: 6, required: 6, reward: '65€', value: 65, label: '6 genehmigte Empfehlungen' },
+            { level: 7, required: 7, reward: '75€', value: 75, label: '7 genehmigte Empfehlungen' }
         ];
 
         async function initPage() {
@@ -299,27 +314,26 @@
                     `;
                 }
 
-                // Aktuell-Badge?
+                // Truhen-Bild Logik
+                let chestImage = 'assets/geschlossene_truhe.jpeg';
+                if (isPassed || isActive) {
+                    chestImage = 'assets/offene_truhe.png';
+                }
+
+                // Aktuell-Badge
                 let badge = '';
                 if (isActive) {
                     badge = '<span class="status-badge">Aktuell</span>';
-                    rightContent = `
-                        <div class="level-reward highlight">${lvl.reward}</div>
-                        <div class="level-sub">${lvl.value > 0 ? 'Gutschein' : ''}</div>
-                    `;
                 }
 
                 const html = `
                     <div class="level-item ${statusClass}">
                         <div class="level-row">
                             <div class="level-left">
-                                <!-- Falls der User die Nummer-Box meinte: Sie ist hier noch drin. -->
-                                <!-- Wenn er sie WEG haben will, müssen wir diesen Block entfernen: -->
-                                <!-- <div class="level-number-box">${lvl.level}</div> -->
-                                
-                                <!-- Aber ohne Box sieht es komisch aus, da "Level X" im Text steht.
-                                     Ich habe die TIMELINE-MARKER (linke Kreise) bereits entfernt. -->
-                                <div class="level-number-box">${lvl.level}</div>
+                                <!-- Truhen Bild statt Nummer-Box -->
+                                <div class="level-number-box" style="background: transparent; width: 50px; height: 50px;">
+                                    <img src="${chestImage}" alt="Truhe" style="width: 100%; height: 100%; object-fit: contain;">
+                                </div>
                                 
                                 <div class="level-info-text">
                                     <div style="display: flex; align-items: center;">
