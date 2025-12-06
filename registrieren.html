@@ -42,8 +42,15 @@
                     <input type="text" id="referrerNameDisplay" class="input-field" readonly style="background-color: #DCFCE7; color: #166534; font-weight: 600;" value="Lade...">
                     <input type="hidden" id="refCode">
                 </div>
+
+                <div class="input-group" style="display: flex; align-items: start; gap: 10px; margin-bottom: 20px;">
+                    <input type="checkbox" id="privacyCheck" required style="margin-top: 4px; width: 16px; height: 16px; cursor: pointer;">
+                    <label for="privacyCheck" style="font-size: 0.85rem; line-height: 1.4; margin-bottom: 0; cursor: pointer;">
+                        Ich stimme der <a href="datenschutz.html" target="_blank" style="color: var(--primary-color); text-decoration: underline;">Datenschutzerklärung</a> zu und akzeptiere die Verarbeitung meiner Daten.
+                    </label>
+                </div>
                 
-                <button type="submit" class="btn-primary">Registrieren</button>
+                <button type="submit" class="btn-primary" id="registerBtn" disabled style="opacity: 0.5; cursor: not-allowed;">Registrieren</button>
             </form>
             
             <div class="auth-links">
@@ -87,8 +94,32 @@
             }
         }
 
+        // Checkbox Logic: Button aktivieren/deaktivieren
+        const privacyCheck = document.getElementById('privacyCheck');
+        const registerBtn = document.getElementById('registerBtn');
+
+        privacyCheck.addEventListener('change', function() {
+            if (this.checked) {
+                registerBtn.disabled = false;
+                registerBtn.style.opacity = '1';
+                registerBtn.style.cursor = 'pointer';
+            } else {
+                registerBtn.disabled = true;
+                registerBtn.style.opacity = '0.5';
+                registerBtn.style.cursor = 'not-allowed';
+            }
+        });
+
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            // Zusätzlicher Check, falls HTML 'required' umgangen wird
+            const privacyCheck = document.getElementById('privacyCheck');
+            if (!privacyCheck.checked) {
+                alert('Bitte stimme der Datenschutzerklärung zu.');
+                return;
+            }
+
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
